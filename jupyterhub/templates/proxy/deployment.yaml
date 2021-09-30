@@ -76,6 +76,7 @@ spec:
             - --api-port=8001
             - --default-target={{ .Values.proxy.chp.defaultTarget | default $hubHost }}
             - --error-target={{ .Values.proxy.chp.errorTarget | default (printf "%s/hub/error" $hubHost) }}
+            - --no-x-forward # Added for jenkins in SchedulableNotebook
             {{- if $manualHTTPS }}
             - --port=8443
             - --redirect-port=8000

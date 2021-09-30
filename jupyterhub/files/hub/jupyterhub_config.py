@@ -171,6 +171,29 @@ for trait, cfg_key in (
         cfg_key = camelCaseify(trait)
     set_config_if_not_none(c.KubeSpawner, trait, "singleuser." + cfg_key)
 
+c.KubeSpawner.extra_containers.append(
+    {
+        "image": "lmeval/network_output_exporter",
+        "imagePullPolicy": "Always",
+        "name": "network-output-exporter",
+        "env": [{"name": "NOE_CAPTURE_INTERNAL", "value": "true"}],
+        "ports": [
+            {
+                "containerPort": 9000,
+                "protocol": "TCP",
+            }
+        ],
+    }
+)
+
+c.KubeSpawner.extra_annotations.update(
+    {
+        "prometheus.io/scrape": "true",
+        "prometheus.io/path": "/",
+        "prometheus.io/port": "9000",
+    }
+)
+
 image = get_config("singleuser.image.name")
 if image:
     tag = get_config("singleuser.image.tag")
@@ -322,7 +345,19 @@ c.KubeSpawner.volume_mounts.extend(
     get_config("singleuser.storage.extraVolumeMounts", [])
 )
 
-c.JupyterHub.services = []
+c.JupyterHub.services = [
+    {
+        "name": "users-exporter",
+        "admin": True,
+        "api_token": get_secret_value(f"hub.services.users-exporter.apiToken"),
+    },
+    {
+        "name": "schedulable-notebook",
+        "admin": True,
+        "url": "http://hub:8888",
+        "api_token": get_secret_value(f"hub.services.schedulable-notebook.apiToken"),
+    },
+]
 
 if get_config("cull.enabled", False):
     cull_cmd = ["python3", "-m", "jupyterhub_idle_culler"]
