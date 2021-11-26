@@ -52,7 +52,7 @@ jsonschema==3.2.0
     # via jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
-jupyterhub==1.4.2
+git+https://github.com/yacchin1205/jupyterhub.git@feature/1.4.2
     # via
     #   -r requirements.in
     #   jupyterhub-firstuseauthenticator
@@ -77,6 +77,10 @@ jupyterhub-ltiauthenticator==1.0.0
 jupyterhub-nativeauthenticator==0.0.7
     # via -r requirements.in
 jupyterhub-tmpauthenticator==0.6
+    # via -r requirements.in
+git+https://github.com/RCOSDP/CS-jhub_remote_user_authenticator.git
+    # via -r requirements.in
+git+https://github.com/RCOSDP/CS-jhub_sendgrid_notifier.git
     # via -r requirements.in
 kubernetes==17.17.0
     # via jupyterhub-kubespawner
