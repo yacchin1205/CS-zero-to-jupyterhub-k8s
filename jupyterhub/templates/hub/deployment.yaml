@@ -75,9 +75,11 @@ spec:
           persistentVolumeClaim:
             claimName: {{ include "jupyterhub.hub-pvc.fullname" . }}
         {{- end }}
+        {{- if .Values.schedulableNotebook.enabled }}
         - name: jenkins-dir
           persistentVolumeClaim:
             claimName: jenkins-settings-dir
+        {{- end }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: {{ include "jupyterhub.hub.fullname" . }}
       {{- end }}
@@ -94,6 +96,8 @@ spec:
         {{- with .Values.hub.extraContainers }}
         {{- . | toYaml | nindent 8 }}
         {{- end }}
+
+        {{- if .Values.schedulableNotebook.enabled }}
         - command:
           - jupyterhub-singleuser
           env:
@@ -157,6 +161,8 @@ spec:
           - containerPort: 8888
             protocol: TCP
           resources: {}
+        {{- end }}
+        {{- if .Values.usersExporter.enabled }}
         - name: jupyterhub-users-exporter
           image: {{ .Values.usersExporter.image.name }}:{{ .Values.usersExporter.image.tag }}
           {{- with .Values.usersExporter.image.pullPolicy }}
@@ -179,6 +185,7 @@ spec:
                 name: hub
                 {{- end }}
                 key: users-exporter.token
+        {{- end }}
         - name: hub
           image: {{ .Values.hub.image.name }}:{{ .Values.hub.image.tag }}
           {{- with .Values.hub.command }}

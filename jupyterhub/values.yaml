@@ -147,6 +147,7 @@ grafana:
   externalHost: ""
 
 usersExporter:
+  enabled: true
   secretToken: ""
   image:
     name: lmeval/jupyterhub_users_exporter
@@ -159,6 +160,7 @@ googleCloudStorage:
   bucket: ""
 
 schedulableNotebook:
+  enabled: true
   secretToken: ""
   image:
     name: lmeval/schedulable_notebook

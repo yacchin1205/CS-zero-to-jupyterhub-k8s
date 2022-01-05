@@ -155,11 +155,11 @@ jobs:
               --set hub.cookieSecret=bbbb2222
               --set hub.config.CryptKeeper.keys[0]=cccc3333
             create-k8s-test-resources: true
-          - k3s-channel: v1.19
-            test: upgrade
-            upgrade-from: dev
-            upgrade-from-extra-args: >-
-              --set proxy.secretToken=aaaa1111
+            - k3s-channel: v1.19
+              test: upgrade
+              upgrade-from: dev
+              upgrade-from-extra-args: >-
+                --set proxy.secretToken=aaaa1111
 
     steps:
       - uses: actions/checkout@v2
@@ -233,7 +233,7 @@ jobs:
           #
           #        https://github.com/helm/helm/issues/9244
           cd ci
-          helm install jupyterhub --repo https://jupyterhub.github.io/helm-chart/ jupyterhub --values ../dev-config.yaml --version=$UPGRADE_FROM_VERSION ${{ matrix.upgrade-from-extra-args }}
+          helm install jupyterhub --repo https://jupyterhub.github.io/helm-chart/ jupyterhub --values ../dev-config-upstream.yaml --version=$UPGRADE_FROM_VERSION ${{ matrix.upgrade-from-extra-args }}
 
       - name: "(Upgrade) Install helm diff"
         if: matrix.test == 'upgrade'
