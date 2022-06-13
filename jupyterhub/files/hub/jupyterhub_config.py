@@ -354,7 +354,7 @@ c.JupyterHub.services = [
     {
         "name": "schedulable-notebook",
         "admin": True,
-        "url": "http://hub:8888",
+        "url": "http://schedulable-notebook:8888",
         "api_token": get_secret_value(f"hub.services.schedulable-notebook.apiToken"),
     },
 ]

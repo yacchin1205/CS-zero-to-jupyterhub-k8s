@@ -1,0 +1,96 @@
+
+{{- if .Values.schedulableNotebook.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schedulable-notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "jupyterhub.matchLabels" . | nindent 6 }}
+  strategy:
+    {{- .Values.hub.deploymentStrategy | toYaml | nindent 4 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jupyterhub.matchLabels" . | nindent 8 }}
+      annotations:
+        {{- /* This lets us autorestart when the secret changes! */}}
+        checksum/config-map: {{ include (print .Template.BasePath "/hub/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print .Template.BasePath "/hub/secret.yaml") . | sha256sum }}
+        {{- with .Values.hub.annotations }}
+        {{- . | toYaml | nindent 8 }}
+        {{- end }}
+    spec:
+      volumes:
+        - name: jenkins-dir
+          persistentVolumeClaim:
+            claimName: jenkins-settings-dir
+      securityContext:
+        fsGroup: {{ .Values.hub.fsGid }}
+      containers:
+        - command:
+          - jupyterhub-singleuser
+          env:
+          - name: SLACK_API_URL
+            value: {{ .Values.schedulableNotebook.slack.apiURL | quote }}
+          - name: SLACK_API_TOKEN
+            value: {{ .Values.schedulableNotebook.slack.apiToken | quote }}
+          - name: SLACK_CHANNEL
+            value: {{ .Values.schedulableNotebook.slack.channel | quote }}
+          - name: TZ
+            value: {{ .Values.schedulableNotebook.timezone | quote }}
+          - name: PROMETHEUS_SNAPSHOT_PATH
+            value: {{ .Values.schedulableNotebook.prometheus.snapshotPath | quote }}
+          - name: JUPYTERHUB_API_URL
+            value: "http://{{ include "jupyterhub.hub.fullname" . }}:8081/hub/api"
+          - name: GCS_BUCKET
+            valueFrom:
+              secretKeyRef:
+                {{- if .Values.hub.existingSecret }}
+                name: {{ .Values.hub.existingSecret }}
+                {{- else }}
+                name: hub
+                {{- end }}
+                key: gcs.bucketName
+          - name: PROMETHEUS_HOST
+            value: {{ .Values.schedulableNotebook.prometheus.host | quote }}
+          - name: PROMETHEUS_PORT
+            value: {{ .Values.schedulableNotebook.prometheus.port | quote }}
+          - name: PROMETHEUS_NAMESPACE
+            value: {{ .Values.schedulableNotebook.prometheus.podNamespace | quote }}
+          - name: PROMETHEUS_CONTAINER
+            value: {{ .Values.schedulableNotebook.prometheus.container | quote }}
+          - name: PROMETHEUS_DEPLOYMENT
+            value: {{ .Values.schedulableNotebook.prometheus.deployment }}
+          - name: JUPYTERHUB_CLIENT_ID
+            value: service-schedulable-notebook
+          - name: JUPYTERHUB_SERVICE_PREFIX
+            value: /services/schedulable-notebook/
+          - name: JUPYTERHUB_ADMIN_ACCESS
+            value: "True"
+          - name: JUPYTERHUB_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                {{- if .Values.hub.existingSecret }}
+                name: {{ .Values.hub.existingSecret }}
+                {{- else }}
+                name: hub
+                {{- end }}
+                key: schedulable-notebook.token
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /var/secrets/googleCloudServiceAccount.json
+          image: {{ .Values.schedulableNotebook.image.name }}:{{ .Values.schedulableNotebook.image.tag }}
+          {{- with .Values.schedulableNotebook.image.pullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
+          name: schedulable-notebook
+          volumeMounts:
+            - name: jenkins-dir
+              mountPath: /home/jovyan/.jenkins
+          ports:
+          - containerPort: 8888
+            protocol: TCP
+          resources: {}
+{{- end }}
