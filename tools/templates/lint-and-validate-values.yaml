@@ -299,6 +299,12 @@ proxy:
       crt: "mock-crt"
     hosts: [domain.com]
 
+schedulableNotebook:
+  secretToken: daad2e18301c37a14d0f6818b17283bbccc6c9637b652983dc5cfd538aba3326 # dummy
+
+usersExporter:
+  secretToken: daad2e18301c37a14d0f6818b17283bbccc6c9637b652983dc5cfd538aba3326 # dummy
+
 singleuser:
   profileList:
     - display_name: "mock display name 1"

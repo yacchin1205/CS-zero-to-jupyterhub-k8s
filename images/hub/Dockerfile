@@ -27,6 +27,7 @@ RUN EXTRA_APT_PACKAGES=; \
       sqlite3 \
       curl \
       dnsutils \
+      npm \
       $EXTRA_APT_PACKAGES \
       && \
     rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,32 @@
+{{- if .Values.schedulableNotebook.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jenkins-settings-dir
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "jupyterhub.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.schedulableNotebook.jenkins.storage | quote }}  
+  storageClassName: {{ .Values.schedulableNotebook.jenkins.storageClassName | quote }}
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: schedulable-notebook-home
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "jupyterhub.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.schedulableNotebook.home.storage | quote }}
+  storageClassName: {{ .Values.schedulableNotebook.home.storageClassName | quote }}
+{{- end }}

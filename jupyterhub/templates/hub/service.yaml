@@ -31,10 +31,6 @@ spec:
       {{- with .Values.hub.service.ports.nodePort }}
       nodePort: {{ . }}
       {{- end }}
-    - name: schedulable
-      protocol: TCP
-      port: 8888
-      targetPort: 8888
     - name: users-exporter
       protocol: TCP
       port: 9000

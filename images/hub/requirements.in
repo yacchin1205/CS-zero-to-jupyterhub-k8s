@@ -5,7 +5,7 @@
 #
 
 # JupyterHub itself
-jupyterhub
+git+https://github.com/RCOSDP/CS-jupyterhub.git@feature/1.4.2
 
 ## Authenticators
 jupyterhub-firstuseauthenticator
@@ -23,6 +23,10 @@ pyjwt
 
 ## Kubernetes spawner
 jupyterhub-kubespawner
+
+# RCOSDP
+git+https://github.com/RCOSDP/CS-jhub_remote_user_authenticator.git
+git+https://github.com/RCOSDP/CS-jhub_sendgrid_notifier.git
 
 ## Other optional dependencies for additional features
 pymysql  # mysql
