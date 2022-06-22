@@ -141,6 +141,46 @@ hub:
 rbac:
   enabled: true
 
+grafana:
+  apiKey: ""
+  internalHost: ""
+  externalHost: ""
+
+usersExporter:
+  secretToken: ""
+  image:
+    name: lmeval/jupyterhub_users_exporter
+    tag: latest
+  imagePullPolicy: Always
+
+googleCloudServiceAccount:
+  json: ""
+googleCloudStorage:
+  bucket: ""
+
+schedulableNotebook:
+  secretToken: ""
+  image:
+    name: lmeval/schedulable_notebook
+    tag: latest
+  imagePullPolicy: Always
+  slack:
+    apiURL: ""
+    apiToken: ""
+    channel: ""
+  prometheus:
+    host: "localhost"
+    port: "9090"
+    snapshotPath: "/data/snapshots"
+    podNamespace: ""
+    container: "prometheus-server"
+    deployment: "prometheus-server"
+  timezone: UTC
+  protocol: "https"
+  jenkins:
+    storage: 1Gi
+    storageClassName: topology-aware-standard
+
 # proxy relates to the proxy pod, the proxy-public service, and the autohttps
 # pod and proxy-http service.
 proxy:

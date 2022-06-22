@@ -2414,6 +2414,161 @@ properties:
                   hub.jupyter.org/node-purpose=user
                   ```
 
+  grafana:
+    type: object
+    properties:
+      apiKey:
+        type: [string, "null"]
+        description: |
+          An api key that is created on the admin panel of grafana.
+      internalHost:
+        type: [string, "null"]
+        description: |
+          An internal url of the Grafana host that is used by
+          the JupyterHub server to retrieve thumbnails about current usage from Grafana.
+      externalHost:
+        type: [string, "null"]
+        description: |
+          An external url of the Grafana that is used to navigate users to
+          the admin panel of Grafana on web browsers.
+
+  usersExporter:
+    type: object
+    properties:
+      secretToken:
+        type: [string, "null"]
+        description: |
+          A 32-byte cryptographically secure randomly generated string used to
+          secure communications with the hub.
+          ```sh
+          # to generate a value, run
+          openssl rand -hex 32
+          ```
+      image:
+        type: object
+        name:
+          type: [string, "null"]
+          description: |
+            The name of the image to be used as users exporter
+        tag:
+          type: [string, "null"]
+          description: |
+            The tag of the image
+      imagePullPolicy:
+        enum: [null, "", IfNotPresent, Always, Never]
+        description: |
+          Configures the Pod's `spec.imagePullPolicy`.
+
+          See the [Kubernetes docs](https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+          for more info.
+
+  googleCloudServiceAccount:
+    type: object
+    properties:
+      json:
+        type: [string, "null"]
+        description: |
+          A json file of secret key for your service account in Google Cloud.
+  googleCloudStorage:
+    type: object
+    properties:
+      bucket:
+        type: [string, "null"]
+        description: |
+          The name of the bucket that is used to store the snapshots of prometheus.
+
+  schedulableNotebook:
+    type: object
+    properties:
+      secretToken:
+        type: [string, "null"]
+        description: |
+          A 32-byte cryptographically secure randomly generated string used to
+          secure communications with the hub.
+          ```sh
+          # to generate a value, run
+          openssl rand -hex 32
+          ```
+      image:
+        type: object
+        properties:
+          name:
+            type: [string, "null"]
+            description: |
+              The name of the image to be used as users exporter
+          tag:
+            type: [string, "null"]
+            description: |
+              The tag of the image
+      imagePullPolicy:
+        enum: [null, "", IfNotPresent, Always, Never]
+        description: |
+          Configures the Pod's `spec.imagePullPolicy`.
+
+          See the [Kubernetes docs](https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+          for more info.
+      slack:
+        type: object
+        properties:
+          apiURL:
+            type: [string, "null"]
+            description: |
+              A url of the slack api to be posted notifications to.
+          apiToken:
+            type: [string, "null"]
+            description: |
+              A secret token of the slack api to be posted notifications to.
+          channel:
+            type: [string, "null"]
+            description: |
+              A channel of the slack workspace to be posted notifications to.
+      prometheus:
+        type: object
+        properties:
+          host:
+            type: [string, "null"]
+            description: |
+              A name of host server of Prometheus.
+          port:
+            type: [string, "null"]
+            description: |
+              A port number of Prometheus.
+          snapshotPath:
+            type: [string, "null"]
+            description: |
+              A path of snapshot directory of Prometheus.
+          podNamespace:
+            type: [string, "null"]
+            description: |
+              A namespace which the Prometheus pod belongs to.
+          container:
+            type: [string, "null"]
+            description: |
+              A name of the Prometheus container in its pod.
+          deployment:
+            type: [string, "null"]
+            description: |
+              A name of the Prometheus deployment.
+      timezone:
+        type: [string, "null"]
+        description: |
+          A timezone to be used in the SchedulableNotebook pod.
+      protocol:
+        type: [string, "null"]
+        description: |
+          A protocol to be used to access to the SchedulableNotebook server.
+      jenkins:
+        type: object
+        properties:
+          storage:
+            type: [string, "null"]
+            description: |
+              A size of the storage used by Jenkins in SchedulableNotebook.
+          storageClassName:
+            type: [string, "null"]
+            description: |
+              A class name of the storage used by Jenkins in SchedulableNotebook.
+
   ingress:
     type: object
     additionalProperties: false
