@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ include "jupyterhub.hub.fullname" . }}
   labels:
@@ -9,8 +9,12 @@ spec:
   selector:
     matchLabels:
       {{- include "jupyterhub.matchLabels" . | nindent 6 }}
+  revisionHistoryLimit: 2
   strategy:
-    {{- .Values.hub.deploymentStrategy | toYaml | nindent 4 }}
+    blueGreen:
+      previewService: {{ include "jupyterhub.hub.fullname" . }}-preview
+      activeService: {{ include "jupyterhub.hub.fullname" . }}
+      autoPromotionEnabled: false
   template:
     metadata:
       labels:

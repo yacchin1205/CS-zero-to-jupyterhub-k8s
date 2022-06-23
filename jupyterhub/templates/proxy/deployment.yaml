@@ -165,6 +165,107 @@ spec:
           securityContext:
             {{- . | toYaml | nindent 12 }}
           {{- end }}
-      {{- with .Values.proxy.chp.extraPodSpec }}
-      {{- . | toYaml | nindent 6 }}
-      {{- end }}
+        - name: chp-preview
+          image: {{ .Values.proxy.chp.image.name }}:{{ .Values.proxy.chp.image.tag }}
+#          {{- $hubHost := printf "http://%s:$(%s_SERVICE_PORT)" (include "jupyterhub.hub.fullname" .) $hubNameAsEnv }}
+          # TODO: Make $hubHost dynamic
+          {{- $hubPreviewHost := "http://hub-preview:$(HUB_SERVICE_PORT)" }}
+          command:
+            - configurable-http-proxy
+            - "--ip="
+            - "--api-ip="
+            - --api-port=9001
+            - --default-target={{ $hubPreviewHost }}
+            - --error-target={{ printf "%s/hub/error" $hubPreviewHost }}
+            # Added for jenkins in SchedulableNotebook
+            - --no-x-forward
+            {{- if $manualHTTPS }}
+            - --port=9443
+            - --redirect-port=9000
+            - --redirect-to=443
+            - --ssl-key=/etc/chp/tls/tls.key
+            - --ssl-cert=/etc/chp/tls/tls.crt
+            {{- else if $manualHTTPSwithsecret }}
+            - --port=9443
+            - --redirect-port=9000
+            - --redirect-to=443
+            - --ssl-key=/etc/chp/tls/{{ .Values.proxy.https.secret.key }}
+            - --ssl-cert=/etc/chp/tls/{{ .Values.proxy.https.secret.crt }}
+            {{- else }}
+            - --port=9000
+            {{- end }}
+            {{- if .Values.debug.enabled }}
+            - --log-level=debug
+            {{- end }}
+            {{- range .Values.proxy.chp.extraCommandLineFlags }}
+            - {{ tpl . $ }}
+            {{- end }}
+          {{- if or $manualHTTPS $manualHTTPSwithsecret }}
+          volumeMounts:
+            - name: tls-secret
+              mountPath: /etc/chp/tls
+              readOnly: true
+          {{- end }}
+          {{- with .Values.proxy.chp.resources }}
+          resources:
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          env:
+            - name: CONFIGPROXY_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  # NOTE: References the chart managed k8s Secret even if
+                  #       hub.existingSecret is specified to avoid using the
+                  #       lookup function on the user managed k8s Secret.
+                  name: {{ include "jupyterhub.hub.fullname" . }}
+                  key: hub.config.ConfigurableHTTPProxy.auth_token
+            {{- with .Values.proxy.chp.extraEnv }}
+            {{- include "jupyterhub.extraEnv" . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.proxy.chp.image.pullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
+          ports:
+            {{- if or $manualHTTPS $manualHTTPSwithsecret }}
+            - name: https
+              containerPort: 9443
+            {{- end }}
+            - name: http
+              containerPort: 9000
+            - name: api
+              containerPort: 9001
+          {{- if .Values.proxy.chp.livenessProbe.enabled }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.proxy.chp.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.proxy.chp.livenessProbe.periodSeconds }}
+            httpGet:
+              path: /_chp_healthz
+              {{- if or $manualHTTPS $manualHTTPSwithsecret }}
+              port: https
+              scheme: HTTPS
+              {{- else }}
+              port: http
+              scheme: HTTP
+              {{- end }}
+          {{- end }}
+          {{- if .Values.proxy.chp.readinessProbe.enabled }}
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.proxy.chp.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.proxy.chp.readinessProbe.periodSeconds }}
+            httpGet:
+              path: /_chp_healthz
+              {{- if or $manualHTTPS $manualHTTPSwithsecret }}
+              port: https
+              scheme: HTTPS
+              {{- else }}
+              port: http
+              scheme: HTTP
+              {{- end }}
+          {{- end }}
+          {{- with .Values.proxy.chp.containerSecurityContext }}
+          securityContext:
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
+        {{- with .Values.proxy.chp.extraPodSpec }}
+        {{- . | toYaml | nindent 6 }}
+        {{- end }}
