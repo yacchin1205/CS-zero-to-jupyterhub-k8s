@@ -167,9 +167,9 @@ spec:
           {{- end }}
         - name: chp-preview
           image: {{ .Values.proxy.chp.image.name }}:{{ .Values.proxy.chp.image.tag }}
-#          {{- $hubHost := printf "http://%s:$(%s_SERVICE_PORT)" (include "jupyterhub.hub.fullname" .) $hubNameAsEnv }}
-          # TODO: Make $hubHost dynamic
-          {{- $hubPreviewHost := "http://hub-preview:$(HUB_SERVICE_PORT)" }}
+
+          {{- $hubNameAsEnv := include "jupyterhub.hub.fullname" . | upper | replace "-" "_" }}
+          {{- $hubPreviewHost := printf "http://%s-preview:$(%s_SERVICE_PORT)" (include "jupyterhub.hub.fullname" .) $hubNameAsEnv }}
           command:
             - configurable-http-proxy
             - "--ip="
