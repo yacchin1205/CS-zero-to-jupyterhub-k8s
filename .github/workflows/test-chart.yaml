@@ -192,6 +192,12 @@ jobs:
         run: |
           helm install pebble --repo https://jupyterhub.github.io/helm-chart/ pebble --values dev-config-pebble.yaml
 
+      # Install CRD for Argo Rollouts
+      - name: Install Argo Aollouts
+        run: |
+          kubectl create namespace argo-rollouts
+          kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+
       # Build our images if needed and update values.yaml with the tags
       - name: Install and run chartpress
         run: |
