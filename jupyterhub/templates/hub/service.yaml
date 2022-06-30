@@ -38,3 +38,36 @@ spec:
     {{- with .Values.hub.service.extraPorts }}
     {{- . | toYaml | nindent 4 }}
     {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jupyterhub.hub.fullname" . }}-preview
+  labels:
+    {{- include "jupyterhub.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.hub.service.annotations }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.hub.service.type }}
+  {{- with .Values.hub.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
+  selector:
+    {{- include "jupyterhub.matchLabels" . | nindent 4 }}
+  ports:
+    - name: hub
+      port: 8081
+      targetPort: http
+      {{- with .Values.hub.service.ports.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
+    - name: users-exporter
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+    {{- with .Values.hub.service.extraPorts }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}

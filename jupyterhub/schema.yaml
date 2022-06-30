@@ -1058,17 +1058,6 @@ properties:
           A k8s native specification of the container's security context, see [the
           documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#securitycontext-v1-core)
           for details.
-      deploymentStrategy:
-        type: object
-        additionalProperties: false
-        properties:
-          rollingUpdate:
-            type: [string, "null"]
-          type:
-            type: [string, "null"]
-            description: |
-              JupyterHub does not support running in parallel, due to this we
-              default to using a deployment strategy of Recreate.
       extraConfigMap:
         type: object
         additionalProperties: true

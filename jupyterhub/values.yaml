@@ -46,14 +46,6 @@ hub:
   concurrentSpawnLimit: 64
   consecutiveFailureLimit: 5
   activeServerLimit:
-  deploymentStrategy:
-    ## type: Recreate
-    ## - sqlite-pvc backed hubs require the Recreate deployment strategy as a
-    ##   typical PVC storage can only be bound to one pod at the time.
-    ## - JupyterHub isn't designed to support being run in parallell. More work
-    ##   needs to be done in JupyterHub itself for a fully highly available (HA)
-    ##   deployment of JupyterHub on k8s is to be possible.
-    type: Recreate
   db:
     type: sqlite-pvc
     upgrade:
@@ -143,8 +135,8 @@ rbac:
 
 grafana:
   apiKey: ""
-  internalHost: ""
-  externalHost: ""
+  internalHost: "http://grafana.internal"
+  externalHost: "http://grafana.external"
 
 usersExporter:
   enabled: true

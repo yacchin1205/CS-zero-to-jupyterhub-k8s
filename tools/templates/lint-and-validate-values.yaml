@@ -71,9 +71,6 @@ hub:
         targetPort: string-named-target-port
   baseUrl: /
   activeServerLimit: 3
-  deploymentStrategy:
-    type: Recreate
-    rollingUpdate:
   labels: &labels
     mock-label1-key: mock-label1-value
     mock-label2-key: mock-label2-value
