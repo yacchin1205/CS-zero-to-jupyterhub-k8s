@@ -322,7 +322,7 @@ jobs:
         uses: jupyterhub/action-k8s-namespace-report@v1
         if: always()
         with:
-          important-workloads: deploy/hub deploy/proxy
+          important-workloads: deploy/proxy
 
       # WARNING: Only allow this for pull_request runs that doesn't contain
       #          sensitive information.
