@@ -135,8 +135,8 @@ rbac:
 
 grafana:
   apiKey: ""
-  internalHost: ""
-  externalHost: ""
+  internalHost: "http://grafana.internal"
+  externalHost: "http://grafana.external"
 
 usersExporter:
   enabled: true
