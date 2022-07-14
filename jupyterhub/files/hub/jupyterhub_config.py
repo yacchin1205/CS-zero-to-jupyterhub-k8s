@@ -105,6 +105,10 @@ c.JupyterHub.hub_connect_url = (
     f'http://{get_name("hub")}:{get_name_env("hub", "_SERVICE_PORT")}'
 )
 
+env_url = os.environ.get('HUB_CONNECT_URL')
+if env_url:
+    c.JupyterHub.hub_connect_url = env_url
+
 # implement common labels
 # this duplicates the jupyterhub.commonLabels helper
 common_labels = c.KubeSpawner.common_labels = {}

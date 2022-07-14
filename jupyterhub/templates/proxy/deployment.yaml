@@ -227,41 +227,13 @@ spec:
           {{- end }}
           ports:
             {{- if or $manualHTTPS $manualHTTPSwithsecret }}
-            - name: https
+            - name: preview-https
               containerPort: 9443
             {{- end }}
-            - name: http
+            - name: preview-http
               containerPort: 9000
-            - name: api
+            - name: preview-api
               containerPort: 9001
-          {{- if .Values.proxy.chp.livenessProbe.enabled }}
-          livenessProbe:
-            initialDelaySeconds: {{ .Values.proxy.chp.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.proxy.chp.livenessProbe.periodSeconds }}
-            httpGet:
-              path: /_chp_healthz
-              {{- if or $manualHTTPS $manualHTTPSwithsecret }}
-              port: https
-              scheme: HTTPS
-              {{- else }}
-              port: http
-              scheme: HTTP
-              {{- end }}
-          {{- end }}
-          {{- if .Values.proxy.chp.readinessProbe.enabled }}
-          readinessProbe:
-            initialDelaySeconds: {{ .Values.proxy.chp.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.proxy.chp.readinessProbe.periodSeconds }}
-            httpGet:
-              path: /_chp_healthz
-              {{- if or $manualHTTPS $manualHTTPSwithsecret }}
-              port: https
-              scheme: HTTPS
-              {{- else }}
-              port: http
-              scheme: HTTP
-              {{- end }}
-          {{- end }}
           {{- with .Values.proxy.chp.containerSecurityContext }}
           securityContext:
             {{- . | toYaml | nindent 12 }}
