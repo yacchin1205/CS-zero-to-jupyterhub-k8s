@@ -18,6 +18,10 @@ spec:
   ports:
     - port: 8001
       targetPort: api
+      name: api
+    - port: 9001
+      targetPort: preview-api
+      name: preview-api
 ---
 apiVersion: v1
 kind: Service
@@ -64,6 +68,60 @@ spec:
       {{- with .Values.proxy.service.nodePorts.http }}
       nodePort: {{ . }}
       {{- end }}
+    {{- end }}
+    {{- with .Values.proxy.service.extraPorts }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}
+  type: {{ .Values.proxy.service.type }}
+  {{- with .Values.proxy.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
+  {{- if eq .Values.proxy.service.type "LoadBalancer" }}
+  {{- with .Values.proxy.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: preview-{{ include "jupyterhub.proxy-public.fullname" . }}
+  labels:
+    {{- $_ := merge (dict "componentSuffix" "-public") . }}
+    {{- include "jupyterhub.labels" $_ | nindent 4 }}
+    {{- with .Values.proxy.service.labels }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}
+  {{- with .Values.proxy.service.annotations }}
+  annotations:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    {{- if $autoHTTPS }}
+    component: autohttps
+    {{- else }}
+    component: proxy
+    {{- end }}
+    release: {{ .Release.Name }}
+  ports:
+    {{- if $HTTPS }}
+    - name: https
+      port: 443
+      # When HTTPS termination is handled outside our helm chart, pass traffic
+      # coming in via this Service's port 443 to targeted pod's port meant for
+      # HTTP traffic.
+      {{- if $offloadHTTPS }}
+      targetPort: 9000
+      {{- else }}
+      targetPort: 9443
+      {{- end }}
+    {{- end }}
+    {{- if ne .Values.proxy.service.disableHttpPort true }}
+    - name: http
+      port: 80
+      targetPort: 9000
     {{- end }}
     {{- with .Values.proxy.service.extraPorts }}
     {{- . | toYaml | nindent 4 }}
