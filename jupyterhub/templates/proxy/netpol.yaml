@@ -40,12 +40,15 @@ spec:
       - port: {{ $port }}
       {{- end }}
     {{- end }}
-
+    - ports:
+        - port: 9000
     # allowed pods (hub.jupyter.org/network-access-proxy-http) --> proxy (http/https port)
     - ports:
         - port: http
+        - port: 9000
         {{- if or $manualHTTPS $manualHTTPSwithsecret }}
         - port: https
+        - port: 9443
         {{- end }}
       from:
         # source 1 - labeled pods
@@ -64,6 +67,7 @@ spec:
     # allowed pods (hub.jupyter.org/network-access-proxy-api) --> proxy (api port)
     - ports:
         - port: api
+        - port: preview-api
       from:
         # source 1 - labeled pods
         - podSelector:
