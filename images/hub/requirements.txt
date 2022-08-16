@@ -52,7 +52,7 @@ jsonschema==3.2.0
     # via jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
-git+https://github.com/lifematics/CS-jupyterhub.git@feature/1.4.2
+git+https://github.com/yacchin1205/CS-jupyterhub.git@feature/return-on-error-url
     # via
     #   -r requirements.in
     #   jupyterhub-firstuseauthenticator
