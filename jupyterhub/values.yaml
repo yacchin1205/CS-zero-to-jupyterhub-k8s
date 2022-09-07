@@ -71,7 +71,7 @@ hub:
   extraVolumeMounts: []
   image:
     name: yacchin1205/cs-k8s-hub
-    tag: "1.1.3-n015.hc98d82bb"
+    tag: "1.1.3-n032.h0cc2f87f"
     pullPolicy:
     pullSecrets: []
   resources: {}
@@ -312,7 +312,7 @@ proxy:
       allowPrivilegeEscalation: false
     image:
       name: yacchin1205/cs-k8s-secret-sync
-      tag: "1.1.3-n015.hc98d82bb"
+      tag: "1.1.3-n031.h26f664e4"
       pullPolicy:
       pullSecrets: []
     resources: {}
@@ -352,7 +352,7 @@ singleuser:
   networkTools:
     image:
       name: yacchin1205/cs-k8s-network-tools
-      tag: "1.1.3-n015.hc98d82bb"
+      tag: "1.1.3-n031.h26f664e4"
       pullPolicy:
       pullSecrets: []
   cloudMetadata:
@@ -406,7 +406,7 @@ singleuser:
       storageAccessModes: [ReadWriteOnce]
   image:
     name: yacchin1205/cs-k8s-singleuser-sample
-    tag: "1.1.3-n015.hc98d82bb"
+    tag: "1.1.3-n031.h26f664e4"
     pullPolicy:
     pullSecrets: []
   startTimeout: 300
@@ -541,7 +541,7 @@ prePuller:
     # image and the configuration below relates to the hook-image-awaiter Job
     image:
       name: yacchin1205/cs-k8s-image-awaiter
-      tag: "1.1.3-n015.hc98d82bb"
+      tag: "1.1.3-n031.h26f664e4"
       pullPolicy:
       pullSecrets: []
     containerSecurityContext:
