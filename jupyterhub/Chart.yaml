@@ -1,7 +1,7 @@
 # Chart.yaml v2 reference: https://helm.sh/docs/topics/charts/#the-chartyaml-file
 apiVersion: v2
 name: jupyterhub
-version: 1.1.3-n032.h0cc2f87f
+version: 1.1.3-n033.h880283dd
 appVersion: 1.4.2
 description: Multi-user Jupyter installation
 keywords: [jupyter, jupyterhub, z2jh]

@@ -71,7 +71,7 @@ hub:
   extraVolumeMounts: []
   image:
     name: yacchin1205/cs-k8s-hub
-    tag: "1.1.3-n032.h0cc2f87f"
+    tag: "1.1.3-n033.h880283dd"
     pullPolicy:
     pullSecrets: []
   resources: {}
