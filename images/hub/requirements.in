@@ -5,7 +5,7 @@
 #
 
 # JupyterHub itself
-git+https://github.com/yacchin1205/jupyterhub.git@feature/return-on-error-url
+git+https://github.com/yacchin1205/jupyterhub.git@feature/403-error-page
 
 ## Authenticators
 jupyterhub-firstuseauthenticator
