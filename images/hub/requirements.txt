@@ -78,7 +78,7 @@ jupyterhub-nativeauthenticator==0.0.7
     # via -r requirements.in
 jupyterhub-tmpauthenticator==0.6
     # via -r requirements.in
-git+https://github.com/RCOSDP/CS-jhub_remote_user_authenticator.git
+git+https://github.com/yacchin1205/jhub_remote_user_authenticator@fix/status-forbidden
     # via -r requirements.in
 git+https://github.com/RCOSDP/CS-jhub_sendgrid_notifier.git
     # via -r requirements.in
