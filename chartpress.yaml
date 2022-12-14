@@ -12,10 +12,10 @@ charts:
   - name: jupyterhub
     # Dev: imagePrefix can be useful to override if you want to trial something
     #      locally developed in a remote k8s cluster.
-    imagePrefix: gcr.io/nii-ap-ops/k8s-
+    imagePrefix: yacchin1205/cs-k8s-
     repo:
-      git: RCOSDP/CS-jhub-helm-chart
-      published: https://rcosdp.github.io/CS-jhub-helm-chart/
+      git: yacchin1205/cs-jhub-helm-chart
+      published: https://yacchin1205.github.io/cs-jhub-helm-chart/
 
     images:
       # hub, the container where JupyterHub, KubeSpawner, and the configured
