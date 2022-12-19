@@ -47,6 +47,12 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --upgrade --no-cache-dir \
         setuptools \
         pip
+
+RUN pip install --no-cache-dir cliapp
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash 
+RUN apt install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*
+RUN npm install --global yarn
 RUN PYCURL_SSL_LIBRARY=openssl \
     pip install --no-cache-dir \
         -r /tmp/requirements.txt
