@@ -13,6 +13,14 @@ charts:
     # Dev: imagePrefix can be useful to override if you want to trial something
     #      locally developed in a remote k8s cluster.
     imagePrefix: gcr.io/nii-ap-ops/k8s-
+    # baseVersion should be a -0.dev suffixed version, where the version should
+    # be the next major, minor, or patch version depending on what we have
+    # merged so far into the main branch. If for example we have merged a
+    # breaking change it should be the next major version, like 3.0.0-0.dev.
+    #
+    # baseVersion should be managed via tbump, see RELEASE.md for details
+    #
+    baseVersion: "3.2.1"
     repo:
       git: RCOSDP/CS-jhub-helm-chart
       published: https://rcosdp.github.io/CS-jhub-helm-chart/
@@ -22,10 +30,12 @@ charts:
       # Authenticator are running.
       hub:
         valuesPath: hub.image
-        # Dev: buildArgs can help you try the Helm chart against unreleased
-        #      versions of JupyterHub or KubeSpawner.
-        # buildArgs:
-        #   PIP_OVERRIDES: "jupyterhub==1.3.0 git+https://github.com/your-username-here/kubespawner.git"
+      # hub-slim, an alternative hub image that doesn't include some
+      # basic utilities for k8s admins
+      hub-slim:
+        contextPath: images/hub
+        extraBuildCommandOptions:
+          - --target=slim-stage
 
       # secret-sync, a sidecar container running in the autohttps pod to next to
       # Traefik meant to sync a TLS certificate with a k8s Secret.
@@ -48,4 +58,3 @@ charts:
       # singleuser-sample, a primitive user container to start with.
       singleuser-sample:
         valuesPath: singleuser.image
-        PIP_OVERRIDES: jupyterhub==1.4.2

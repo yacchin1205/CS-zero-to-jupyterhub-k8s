@@ -1,6 +1,6 @@
 """
-These tests commonl use JupyterHub's REST API:
-http://petstore.swagger.io/?url=https://raw.githubusercontent.com/jupyterhub/jupyterhub/HEAD/docs/rest-api.yml
+These tests common use JupyterHub's REST API:
+https://jupyterhub.readthedocs.io/en/stable/reference/rest-api.html
 """
 
 import os
@@ -51,6 +51,22 @@ def test_api_info(api_request):
     assert r.status_code == 200
     result = r.json()
     assert result["spawner"]["class"] == "kubespawner.spawner.KubeSpawner"
+
+
+def test_api_info_with_scoped_token(api_request, scoped_api_token):
+    """
+    Test access to the hub api's /info endpoint with an hub api token defined
+    via hub.services and that is granted the permissions of a role via
+    hub.loadRoles chart configuration.
+
+    A typical jupyterhub logging response to this test:
+
+        [I 2019-09-25 12:03:12.086 JupyterHub log:174] 200 GET /hub/api/info (test@127.0.0.1) 10.21ms
+    """
+
+    print("asking for the hub information using a dedicated token with read:hub scope")
+    r = api_request.get("/info", headers={"Authorization": f"token {scoped_api_token}"})
+    assert r.status_code == 200
 
 
 def test_api_create_and_get_user(api_request, jupyter_user):
@@ -140,7 +156,7 @@ def test_extra_files(extra_files_test_command):
     )
     assert (
         c.returncode == 0
-    ), f"The hub.extraFiles configuration doesn't seem to have been honored!"
+    ), "The hub.extraFiles configuration doesn't seem to have been honored!"
 
 
 def test_load_etc_jupyterhub_d():
@@ -162,7 +178,7 @@ def test_load_etc_jupyterhub_d():
     )
     assert (
         c.returncode == 0
-    ), f"The hub.extraFiles configuration should have mounted a config file to /usr/local/etc/jupyterhub/jupyterhub_config.d which should have been loaded to write a dummy file for us!"
+    ), "The hub.extraFiles configuration should have mounted a config file to /usr/local/etc/jupyterhub/jupyterhub_config.d which should have been loaded to write a dummy file for us!"
 
 
 def test_load_existing_secret():
@@ -215,7 +231,6 @@ def test_load_existing_secret():
     if "hub.existingSecret=None" in hub_logs:
         pytest.skip("hub.existingSecret is None")
     else:
-        k8s_secret_exist = False
         match = re.compile(r".*hub.existingSecret=(?P<ref>[\S]*).*", re.DOTALL).match(
             hub_logs
         )
