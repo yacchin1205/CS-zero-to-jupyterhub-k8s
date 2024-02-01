@@ -34,6 +34,9 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 100%
+  {{- if typeIs "int" .Values.prePuller.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.prePuller.revisionHistoryLimit }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -44,13 +47,17 @@ spec:
       {{- end }}
     spec:
       {{- /*
-        continuous-image-puller pods are made evictable to save on the k8s pods
-        per node limit all k8s clusters have.
+        image-puller pods are made evictable to save on the k8s pods
+        per node limit all k8s clusters have and have a higher priority
+        than user-placeholder pods that could block an entire node.
       */}}
-      {{- if and (not .hook) .Values.scheduling.podPriority.enabled }}
-      priorityClassName: {{ include "jupyterhub.user-placeholder-priority.fullname" . }}
+      {{- if .Values.scheduling.podPriority.enabled }}
+      priorityClassName: {{ include "jupyterhub.image-puller-priority.fullname" . }}
       {{- end }}
-      nodeSelector: {{ toJson .Values.singleuser.nodeSelector }}
+      {{- with .Values.singleuser.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
       {{- with concat .Values.scheduling.userPods.tolerations .Values.singleuser.extraTolerations .Values.prePuller.extraTolerations }}
       tolerations:
         {{- . | toYaml | nindent 8 }}
@@ -127,6 +134,7 @@ spec:
         {{- /* --- Conditionally pull profileList images --- */}}
         {{- if .Values.prePuller.pullProfileListImages }}
         {{- range $k, $container := .Values.singleuser.profileList }}
+        {{- /* profile's kubespawner_override */}}
         {{- if $container.kubespawner_override }}
         {{- if $container.kubespawner_override.image }}
         - name: image-pull-singleuser-profilelist-{{ $k }}
@@ -143,6 +151,33 @@ spec:
           securityContext:
             {{- . | toYaml | nindent 12 }}
           {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- /* kubespawner_override in profile's profile_options */}}
+        {{- if $container.profile_options }}
+        {{- range $option, $option_spec := $container.profile_options }}
+        {{- if $option_spec.choices }}
+        {{- range $choice, $choice_spec := $option_spec.choices }}
+        {{- if $choice_spec.kubespawner_override }}
+        {{- if $choice_spec.kubespawner_override.image }}
+        - name: image-pull-profile-{{ $k }}-option-{{ $option }}-{{ $choice }}
+          image: {{ $choice_spec.kubespawner_override.image }}
+          command:
+            - /bin/sh
+            - -c
+            - echo "Pulling complete"
+          {{- with $.Values.prePuller.resources }}
+          resources:
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          {{- with $.Values.prePuller.containerSecurityContext }}
+          securityContext:
+            {{- . | toYaml | nindent 12 }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
         {{- end }}
         {{- end }}
         {{- end }}
