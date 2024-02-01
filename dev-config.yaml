@@ -145,7 +145,6 @@ hub:
       <<: *data-yaml
       mountPath: /etc/test/data.toml
 
-
 schedulableNotebook:
   enabled: false
   secretToken: daad2e18301c37a14d0f6818b17283bbccc6c9637b652983dc5cfd538aba3326 # dummy

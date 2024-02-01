@@ -32,6 +32,8 @@ imagePullSecrets: []
 # the proxy pod.
 hub:
   revisionHistoryLimit:
+  rollout:
+    autoPromotionEnabled: true
   config:
     JupyterHub:
       admin_access: true
@@ -75,7 +77,7 @@ hub:
   extraVolumes: []
   extraVolumeMounts: []
   image:
-    name: quay.io/jupyterhub/k8s-hub
+    name: gcr.io/nii-ap-ops/k8s-hub
     tag: "set-by-chartpress"
     pullPolicy:
     pullSecrets: []
@@ -341,7 +343,7 @@ proxy:
       runAsGroup: 65534 # nobody group
       allowPrivilegeEscalation: false
     image:
-      name: quay.io/jupyterhub/k8s-secret-sync
+      name: gcr.io/nii-ap-ops/k8s-secret-sync
       tag: "set-by-chartpress"
       pullPolicy:
       pullSecrets: []
@@ -381,7 +383,7 @@ singleuser:
     preferred: []
   networkTools:
     image:
-      name: quay.io/jupyterhub/k8s-network-tools
+      name: gcr.io/nii-ap-ops/k8s-network-tools
       tag: "set-by-chartpress"
       pullPolicy:
       pullSecrets: []
@@ -433,7 +435,7 @@ singleuser:
       volumeNameTemplate: volume-{username}{servername}
       storageAccessModes: [ReadWriteOnce]
   image:
-    name: quay.io/jupyterhub/k8s-singleuser-sample
+    name: gcr.io/nii-ap-ops/k8s-singleuser-sample
     tag: "set-by-chartpress"
     pullPolicy:
     pullSecrets: []
@@ -642,7 +644,7 @@ prePuller:
     pullOnlyOnChanges: true
     # image and the configuration below relates to the hook-image-awaiter Job
     image:
-      name: quay.io/jupyterhub/k8s-image-awaiter
+      name: gcr.io/nii-ap-ops/k8s-image-awaiter
       tag: "set-by-chartpress"
       pullPolicy:
       pullSecrets: []

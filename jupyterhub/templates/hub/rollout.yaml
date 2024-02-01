@@ -17,7 +17,7 @@ spec:
     blueGreen:
       previewService: {{ include "jupyterhub.hub.fullname" . }}-preview
       activeService: {{ include "jupyterhub.hub.fullname" . }}
-      autoPromotionEnabled: false
+      autoPromotionEnabled: {{ .Values.hub.rollout.autoPromotionEnabled }}
   template:
     metadata:
       labels:

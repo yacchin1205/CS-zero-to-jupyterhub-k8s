@@ -26,6 +26,8 @@ required:
   - debug
   - rbac
   - global
+  - usersExporter
+  - schedulableNotebook
 properties:
   enabled:
     type: [boolean, "null"]
@@ -196,6 +198,13 @@ properties:
     additionalProperties: false
     required: [baseUrl]
     properties:
+      rollout:
+        type: object
+        properties:
+          autoPromotionEnabled:
+            type: boolean
+            description: |
+              Whether automatic promotion is enabled or not.
       revisionHistoryLimit: &revisionHistoryLimit
         type: [integer, "null"]
         minimum: 0
@@ -2721,6 +2730,10 @@ properties:
   usersExporter:
     type: object
     properties:
+      enabled:
+        type: boolean
+        description: |
+          Whether usersExporter is enabled or not.
       secretToken:
         type: [string, "null"]
         description: |
@@ -2766,6 +2779,10 @@ properties:
   schedulableNotebook:
     type: object
     properties:
+      enabled:
+        type: boolean
+        description: |
+          Whether schedulableNotebook is enabled or not.
       secretToken:
         type: [string, "null"]
         description: |

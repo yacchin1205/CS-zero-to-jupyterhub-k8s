@@ -106,7 +106,7 @@ c.JupyterHub.hub_connect_url = (
     f'http://{get_name("hub")}:{get_name_env("hub", "_SERVICE_PORT")}'
 )
 
-env_url = os.environ.get('HUB_CONNECT_URL')
+env_url = os.environ.get("HUB_CONNECT_URL")
 if env_url:
     c.JupyterHub.hub_connect_url = env_url
 
@@ -360,19 +360,28 @@ c.KubeSpawner.volume_mounts.extend(
     get_config("singleuser.storage.extraVolumeMounts", [])
 )
 
-c.JupyterHub.services = [
-    {
-        "name": "users-exporter",
-        "admin": True,
-        "api_token": get_secret_value(f"hub.services.users-exporter.apiToken"),
-    },
-    {
-        "name": "schedulable-notebook",
-        "admin": True,
-        "url": "http://schedulable-notebook:8888",
-        "api_token": get_secret_value(f"hub.services.schedulable-notebook.apiToken"),
-    },
-]
+c.JupyterHub.services = []
+
+
+if get_config("usersExporter.enabled", False):
+    c.JupyterHub.services.append(
+        {
+            "name": "users-exporter",
+            "admin": True,
+            "api_token": get_secret_value("hub.services.users-exporter.apiToken"),
+        }
+    )
+
+if get_config("schedulableNotebook.enabled", False):
+    c.JupyterHub.services.append(
+        {
+            "name": "schedulable-notebook",
+            "admin": True,
+            "url": "http://schedulable-notebook:8888",
+            "api_token": get_secret_value("hub.services.schedulable-notebook.apiToken"),
+        },
+    )
+
 c.JupyterHub.load_roles = []
 
 # jupyterhub-idle-culler's permissions are scoped to what it needs only, see

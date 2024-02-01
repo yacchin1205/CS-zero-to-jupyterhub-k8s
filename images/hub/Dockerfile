@@ -20,7 +20,10 @@ FROM python:3.11-bullseye as build-stage
 #
 COPY requirements.txt requirements.txt
 ARG PIP_CACHE_DIR=/tmp/pip-cache
+RUN apt-get update && apt-get install -y nodejs npm
+RUN npm install --global yarn
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
+    pip install --upgrade pip \
     pip install build \
  && pip wheel \
         --wheel-dir=/tmp/wheels \
@@ -60,17 +63,26 @@ RUN apt-get update \
         # requirement for using a local sqlite database
         sqlite3 \
         tini \
+        git \
+        curl \
+        gpg \
         npm \
  && rm -rf /var/lib/apt/lists/*
 
 # install wheels built in the build stage
 COPY requirements.txt /tmp/requirements.txt
 
+RUN mkdir -m 0755 /etc/apt/keyrings
+RUN apt-get update
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN chmod a+r /etc/apt/keyrings/nodesource.gpg
+
 ENV NODE_MAJOR=21
 RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | \
-    sudo tee /etc/apt/sources.list.d/nodesource.list 
-RUN sudo apt update
-RUN sudo apt install -y nodejs
+    tee /etc/apt/sources.list.d/nodesource.list 
+
+RUN apt update
+RUN apt install -y nodejs
 RUN npm install --global yarn
 ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \

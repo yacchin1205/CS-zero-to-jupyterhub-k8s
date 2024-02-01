@@ -129,12 +129,12 @@ jobs:
         # k3s-channel: https://update.k3s.io/v1-release/channels
         #
         include:
-          - k3s-channel: latest
+          - k3s-channel: v1.29.0+k3s1
             test: install
           - k3s-channel: stable # also test hub-slim, and prePuller.hook
             test: install
             local-chart-extra-args: >-
-              --set hub.image.name=quay.io/jupyterhub/k8s-hub-slim
+              --set hub.image.name=gcr.io/nii-ap-ops/k8s-hub
               --set prePuller.hook.enabled=true
               --set prePuller.hook.pullOnlyOnChanges=true
           - k3s-channel: v1.26 # also test hub.existingSecret
@@ -145,7 +145,6 @@ jobs:
               --set hub.cookieSecret=bbbb2222
               --set hub.config.CryptKeeper.keys[0]=cccc3333
             create-k8s-test-resources: true
-
           # We run three upgrade tests where we first install an already released
           # Helm chart version and then upgrade to the version we are now
           # testing:
@@ -173,44 +172,46 @@ jobs:
               --set hub.db.type=sqlite-pvc
               --set singleuser.storage.type=dynamic
             create-k8s-test-resources: true
-          - k3s-channel: v1.24
-            test: upgrade
-            upgrade-from: dev
-            upgrade-from-extra-args: >-
-              --set proxy.secretToken=aaaa1111
-              --set hub.db.type=sqlite-pvc
-              --set singleuser.storage.type=dynamic
-            local-chart-extra-args: >-
-              --set hub.db.type=sqlite-pvc
-              --set singleuser.storage.type=dynamic
-          - k3s-channel: v1.23
-            test: upgrade
-            # We're testing hub.db.upgrade with PostgreSQL so this version must be old
-            # enough to require a DB upgrade
-            upgrade-from: 2.0.0
-            upgrade-from-extra-args: >-
-              --set proxy.secretToken=aaaa1111
-              --set hub.cookieSecret=bbbb2222
-              --set hub.config.CryptKeeper.keys[0]=cccc3333
-              --set hub.db.type=postgres
-              --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
-              --set singleuser.storage.type=dynamic
-            local-chart-extra-args: >-
-              --set hub.db.type=postgres
-              --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
-              --set singleuser.storage.type=dynamic
-              --set hub.db.upgrade=true
-            create-k8s-test-resources: true
-            # https://artifacthub.io/packages/helm/bitnami/postgresql
-            setup-postgresql-args: >-
-              --version=11.6.13
-              --set auth.enablePostgresUser=true
-              --set auth.postgresPassword=postgres
-              --set auth.database=jupyterhub
-              --set audit.logHostname=true
-              --set audit.logConnections=true
-              --set audit.logDisconnections=true
-              --set audit.clientMinMessages=debug
+          # v1.24はEOLとなっており、利用想定がないのでテストを除外する
+          # - k3s-channel: v1.24
+          #   test: upgrade
+          #   upgrade-from: dev
+          #   upgrade-from-extra-args: >-
+          #     --set proxy.secretToken=aaaa1111
+          #     --set hub.db.type=sqlite-pvc
+          #     --set singleuser.storage.type=dynamic
+          #   local-chart-extra-args: >-
+          #     --set hub.db.type=sqlite-pvc
+          #     --set singleuser.storage.type=dynamic
+          # RCOSのリポジトリにjupyterhub chart version 2.0.0がないため、テストを除外する
+          # - k3s-channel: v1.23
+          #   test: upgrade
+          #   # We're testing hub.db.upgrade with PostgreSQL so this version must be old
+          #   # enough to require a DB upgrade
+          #   upgrade-from: 2.0.0
+          #   upgrade-from-extra-args: >-
+          #     --set proxy.secretToken=aaaa1111
+          #     --set hub.cookieSecret=bbbb2222
+          #     --set hub.config.CryptKeeper.keys[0]=cccc3333
+          #     --set hub.db.type=postgres
+          #     --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
+          #     --set singleuser.storage.type=dynamic
+          #   local-chart-extra-args: >-
+          #     --set hub.db.type=postgres
+          #     --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
+          #     --set singleuser.storage.type=dynamic
+          #     --set hub.db.upgrade=true
+          #   create-k8s-test-resources: true
+          #   # https://artifacthub.io/packages/helm/bitnami/postgresql
+          #   setup-postgresql-args: >-
+          #     --version=11.6.13
+          #     --set auth.enablePostgresUser=true
+          #     --set auth.postgresPassword=postgres
+          #     --set auth.database=jupyterhub
+          #     --set audit.logHostname=true
+          #     --set audit.logConnections=true
+          #     --set audit.logDisconnections=true
+          #     --set audit.clientMinMessages=debug
 
     steps:
       - uses: actions/checkout@v4
@@ -242,7 +243,7 @@ jobs:
           helm install pebble --repo https://hub.jupyter.org/helm-chart/ pebble --values dev-config-pebble.yaml
 
       # Install CRD for Argo Rollouts
-      - name: Install Argo Aollouts
+      - name: Install Argo Rollouts
         run: |
           kubectl create namespace argo-rollouts
           kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
@@ -291,9 +292,9 @@ jobs:
           cd ci
 
           if [ ${{ matrix.upgrade-from }} = stable ]; then
-            UPGRADE_FROM_VERSION=$(helm show chart --repo=https://hub.jupyter.org/helm-chart/ jupyterhub | yq e '.version' -)
+            UPGRADE_FROM_VERSION=$(helm show chart --repo=https://rcosdp.github.io/CS-jhub-helm-chart/ jupyterhub | yq e '.version' -)
           elif [ ${{ matrix.upgrade-from }} = dev ]; then
-            UPGRADE_FROM_VERSION=$(helm show chart --devel --repo=https://hub.jupyter.org/helm-chart/ jupyterhub | yq e '.version' -)
+            UPGRADE_FROM_VERSION=$(helm show chart --devel --repo=https://rcosdp.github.io/CS-jhub-helm-chart/ jupyterhub | yq e '.version' -)
           else
             UPGRADE_FROM_VERSION=${{ matrix.upgrade-from }}
           fi
@@ -302,7 +303,7 @@ jobs:
           echo ""
           echo "Installing already released jupyterhub version $UPGRADE_FROM_VERSION"
 
-          helm install jupyterhub --repo https://hub.jupyter.org/helm-chart/ jupyterhub --values ../dev-config.yaml --version=$UPGRADE_FROM_VERSION ${{ matrix.upgrade-from-extra-args }}
+          helm install jupyterhub --repo https://rcosdp.github.io/CS-jhub-helm-chart/ jupyterhub --values ../dev-config.yaml --version=$UPGRADE_FROM_VERSION ${{ matrix.upgrade-from-extra-args }}
 
       - name: "(Upgrade) Install helm diff"
         if: matrix.test == 'upgrade'
@@ -365,6 +366,10 @@ jobs:
           timeout: 150
           max-restarts: 1
 
+      - name: "Sleep 60sec to await hub"
+        run: |
+          sleep 60
+
       - name: Await local chart cert acquisition
         run: |
           . ./ci/common
@@ -375,7 +380,7 @@ jobs:
         run: |
           . ./ci/common
           # If you have problems with the tests add '--capture=no' to show stdout
-          pytest --verbose --maxfail=2 --color=yes ./tests
+          pytest --verbose --maxfail=2 --color=yes --capture=no ./tests
 
       # ref: https://github.com/jupyterhub/action-k8s-namespace-report
       - name: Kubernetes namespace report
