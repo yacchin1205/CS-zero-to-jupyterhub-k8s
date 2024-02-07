@@ -32,6 +32,7 @@ spec:
             claimName: schedulable-notebook-home
       securityContext:
         fsGroup: {{ .Values.hub.fsGid }}
+        fsGroupChangePolicy: "OnRootMismatch"
       containers:
         - command:
           - jupyterhub-singleuser
