@@ -74,7 +74,7 @@ RUN apt-get update \
 # --no-index ensures _only_ wheels from the build stage are installed
 COPY requirements.txt /tmp/requirements.txt
 
-RUN mkdir -m 0755 /etc/apt/keyrings
+RUN mkdir -p -m 0755 /etc/apt/keyrings
 RUN apt-get update
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 RUN chmod a+r /etc/apt/keyrings/nodesource.gpg
