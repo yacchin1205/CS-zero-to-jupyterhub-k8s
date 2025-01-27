@@ -87,10 +87,14 @@ RUN apt update
 RUN apt install -y nodejs
 RUN npm install --global yarn
 ARG PIP_CACHE_DIR=/tmp/pip-cache
+# TODO: --no-build-isolation is needed to avoid the following error:
+# ERROR: No matching distribution found for setuptools>=61
+RUN pip install --no-cache-dir setuptools>=61
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
     pip install \
         --no-index \
+        --no-build-isolation \
         --find-links=/tmp/wheels/ \
         -r /tmp/requirements.txt
 
