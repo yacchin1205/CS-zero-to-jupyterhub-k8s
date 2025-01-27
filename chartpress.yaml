@@ -20,7 +20,7 @@ charts:
     #
     # baseVersion should be managed via tbump, see RELEASE.md for details
     #
-    baseVersion: "3.2.2"
+    baseVersion: "4.1.0"
     repo:
       git: RCOSDP/CS-jhub-helm-chart
       published: https://rcosdp.github.io/CS-jhub-helm-chart/

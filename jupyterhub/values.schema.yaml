@@ -226,7 +226,7 @@ properties:
           values, you need to use [`hub.extraConfig`](schema_hub.extraConfig)
           instead.
 
-          ```{admonition} Currently intended only for auth config
+          ```{admonition} Some configuration must be set in multiple places
           :class: warning
           This config _currently_ (0.11.0) only influence the software in the
           `hub` Pod, but some Helm chart config options such as
@@ -280,6 +280,25 @@ properties:
           the `--values` or `-f` flag. During merging, lists are replaced while
           dictionaries are updated.
           ```
+        properties:
+          JupyterHub:
+            type: object
+            additionalProperties: true
+            description: |
+              JupyterHub Traitlets configuration.
+
+              See {py:mod}`jupyterhub:jupyterhub.app` for the full list,
+              but take note of the [above warnings](schema_hub.config).
+            properties:
+              subdomain_host:
+                type: string
+                description: |
+                  The subdomain to use for hosting singleuser servers.
+
+                  This helps protect against some cross-origin attacks by giving each user
+                  their own subdomain `<user>.jupyter.example.org`.
+
+                  See {ref}`jupyterhub_subdomains`.
       extraFiles: &extraFiles
         type: object
         additionalProperties: false
@@ -634,7 +653,7 @@ properties:
                     - to:
                         - podSelector:
                             matchLabels:
-                              app: my-k8s-local-service
+                              app.kubernetes.io/name: my-k8s-local-service
                       ports:
                         - protocol: TCP
                           port: 5978
@@ -1113,6 +1132,10 @@ properties:
             description: |
               Object to configure the ports the hub service will be deployed on.
             properties:
+              appProtocol:
+                type: [string, "null"]
+                description: |
+                  The application protocol to utilize with the Service port. This may be required when an external application attempts to make calls to the hub service with a protocol the hub does not support.
               nodePort:
                 type: [integer, "null"]
                 minimum: 0
@@ -1512,6 +1535,7 @@ properties:
           2. proxy.chp.extraPodSpec
           3. proxy.traefik.extraPodSpec
           4. scheduling.userScheduler.extraPodSpec
+          5. scheduling.userPlaceholder.extraPodSpec
 
           One real-world use of these settings is to enable host networking. For
           example, to configure host networking for the hub pod, add the
@@ -1568,7 +1592,7 @@ properties:
                 chp:
                   extraCommandLineFlags:
                     - "--auto-rewrite"
-                    - "--custom-header {{ .Values.myCustomStuff }}"
+                    - "--custom-header={{ .Values.custom.myStuff }}"
               ```
 
               Note that these will be appended last, and if you provide the same
@@ -2382,6 +2406,14 @@ properties:
 
                   There is of a default StorageClass available in k8s clusters
                   for use if this is unspecified.
+              subPath: &subPath-spec
+                type: [string, "null"]
+                description: |
+                  Configures the `subPath` field of a
+                  `KubeSpawner.volume_mounts` entry added by the Helm chart.
+
+                  Path within the volume from which the container's volume
+                  should be mounted. Defaults to "" (volume's root).
               volumeNameTemplate:
                 type: [string, "null"]
                 description: |
@@ -2411,14 +2443,7 @@ properties:
                 description: |
                   Configures `KubeSpawner.pvc_claim_name` to reference
                   pre-existing storage.
-              subPath:
-                type: [string, "null"]
-                description: |
-                  Configures the `subPath` field of a
-                  `KubeSpawner.volume_mounts` entry added by the Helm chart.
-
-                  Path within the volume from which the container's volume
-                  should be mounted.
+              subPath: *subPath-spec
           type:
             enum: [dynamic, static, none]
             description: |
@@ -2633,6 +2658,7 @@ properties:
               Unless specified here, the placeholder pods will request the same
               resources specified for the real singleuser pods.
           containerSecurityContext: *containerSecurityContext-spec
+          extraPodSpec: *extraPodSpec-spec
       corePods:
         type: object
         additionalProperties: false
@@ -2928,6 +2954,13 @@ properties:
           See [the Kubernetes
           documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)
           for more details about annotations.
+      extraPaths:
+        type: array
+        description: |
+          A list of custom paths to be added to the ingress configuration.
+
+          See [the Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
+          for more details about paths.
 
   prePuller:
     type: object
@@ -3003,6 +3036,7 @@ properties:
           image: *image-spec
           resources: *resources-spec
           serviceAccount: *serviceAccount
+          serviceAccountImagePuller: *serviceAccount
       continuous:
         type: object
         additionalProperties: false
@@ -3019,6 +3053,7 @@ properties:
         properties:
           enabled:
             type: boolean
+          serviceAccount: *serviceAccount
       pullProfileListImages:
         type: boolean
         description: |

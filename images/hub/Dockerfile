@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.3
-# VULN_SCAN_TIME=2023-10-16_05:13:59
+# VULN_SCAN_TIME=2024-09-16_05:06:48
 
 
 # The build stage
@@ -10,7 +10,7 @@
 # NOTE: If the image version is updated, also update it in ci/refreeze and
 #       singleuser-sample's Dockerfile!
 #
-FROM python:3.11-bullseye as build-stage
+FROM python:3.12-bookworm as build-stage
 
 # Build wheels
 #
@@ -23,10 +23,11 @@ ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN apt-get update && apt-get install -y nodejs npm
 RUN npm install --global yarn
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
-    pip install --upgrade pip \
-    pip install build \
- && pip wheel \
+    pip wheel \
         --wheel-dir=/tmp/wheels \
+        # pycurl 7.45.3 has wheels, but they aren't portable
+        # https://github.com/pycurl/pycurl/issues/834
+        --no-binary pycurl \
         -r requirements.txt \
         # Additional wheels for default-stage. Updates below should be repeated
         # in default-stage.
@@ -39,7 +40,7 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 # This stage is built and published as quay.io/jupyterhub/k8s-hub-slim. It is meant to
 # provide no non-essential packages.
 #
-FROM python:3.11-slim-bullseye as slim-stage
+FROM python:3.12-slim-bookworm as slim-stage
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG NB_USER=jovyan \
@@ -70,6 +71,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # install wheels built in the build stage
+# --no-index ensures _only_ wheels from the build stage are installed
 COPY requirements.txt /tmp/requirements.txt
 
 RUN mkdir -m 0755 /etc/apt/keyrings
@@ -88,6 +90,7 @@ ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
     pip install \
+        --no-index \
         --find-links=/tmp/wheels/ \
         -r /tmp/requirements.txt
 
@@ -113,6 +116,7 @@ ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
     pip install \
+        --no-index \
         --find-links=/tmp/wheels/ \
         # Updates below should be repeated in build-stage.
         #

@@ -183,7 +183,7 @@ hub:
       - to:
           - podSelector:
               matchLabels:
-                app: my-k8s-local-service
+                app.kubernetes.io/name: my-k8s-local-service
         ports:
           - protocol: TCP
             port: 5978
@@ -524,6 +524,14 @@ scheduling:
     revisionHistoryLimit: 1
     replicas: 1
     resources: *resources
+    extraPodSpec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              foo: bar
   corePods:
     tolerations:
       - key: mock-taint-key-corePods
@@ -558,8 +566,10 @@ prePuller:
         value: mock-taint-value-hook
         effect: NoSchedule
     serviceAccount: *serviceAccount
+    serviceAccountImagePuller: *serviceAccount
   continuous:
     enabled: true
+    serviceAccount: *serviceAccount
   extraImages:
     mockImage1:
       name: mock-user/mock-image1
@@ -577,6 +587,21 @@ ingress:
     - mocked2.domain.name
   pathSuffix: dummy-pathSuffix
   pathType: ImplementationSpecific
+  extraPaths:
+    - pathType: Prefix
+      path: "/foo"
+      backend:
+        service:
+          name: foo
+          port:
+            number: 80
+    - pathType: Prefix
+      path: "/bar"
+      backend:
+        service:
+          name: bar
+          port:
+            name: barPort
   tls:
     - secretName: jupyterhub-tls
       hosts:

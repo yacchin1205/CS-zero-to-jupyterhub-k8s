@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -137,13 +137,14 @@ jobs:
               --set hub.image.name=gcr.io/nii-ap-ops/k8s-hub
               --set prePuller.hook.enabled=true
               --set prePuller.hook.pullOnlyOnChanges=true
-          - k3s-channel: v1.26 # also test hub.existingSecret
+          - k3s-channel: v1.31 # also test hub.existingSecret and subdomain_host
             test: install
             local-chart-extra-args: >-
               --set hub.existingSecret=test-hub-existing-secret
               --set proxy.secretToken=aaaa1111
               --set hub.cookieSecret=bbbb2222
               --set hub.config.CryptKeeper.keys[0]=cccc3333
+              --set hub.config.JupyterHub.subdomain_host=jupyterhub.example.org
             create-k8s-test-resources: true
           # We run three upgrade tests where we first install an already released
           # Helm chart version and then upgrade to the version we are now
@@ -159,7 +160,7 @@ jobs:
           # information from
           # https://hub.jupyter.org/helm-chart/info.json
           #
-          - k3s-channel: v1.25
+          - k3s-channel: v1.30
             test: upgrade
             upgrade-from: stable
             upgrade-from-extra-args: >-
@@ -172,46 +173,44 @@ jobs:
               --set hub.db.type=sqlite-pvc
               --set singleuser.storage.type=dynamic
             create-k8s-test-resources: true
-          # v1.24はEOLとなっており、利用想定がないのでテストを除外する
-          # - k3s-channel: v1.24
-          #   test: upgrade
-          #   upgrade-from: dev
-          #   upgrade-from-extra-args: >-
-          #     --set proxy.secretToken=aaaa1111
-          #     --set hub.db.type=sqlite-pvc
-          #     --set singleuser.storage.type=dynamic
-          #   local-chart-extra-args: >-
-          #     --set hub.db.type=sqlite-pvc
-          #     --set singleuser.storage.type=dynamic
-          # RCOSのリポジトリにjupyterhub chart version 2.0.0がないため、テストを除外する
-          # - k3s-channel: v1.23
-          #   test: upgrade
-          #   # We're testing hub.db.upgrade with PostgreSQL so this version must be old
-          #   # enough to require a DB upgrade
-          #   upgrade-from: 2.0.0
-          #   upgrade-from-extra-args: >-
-          #     --set proxy.secretToken=aaaa1111
-          #     --set hub.cookieSecret=bbbb2222
-          #     --set hub.config.CryptKeeper.keys[0]=cccc3333
-          #     --set hub.db.type=postgres
-          #     --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
-          #     --set singleuser.storage.type=dynamic
-          #   local-chart-extra-args: >-
-          #     --set hub.db.type=postgres
-          #     --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
-          #     --set singleuser.storage.type=dynamic
-          #     --set hub.db.upgrade=true
-          #   create-k8s-test-resources: true
-          #   # https://artifacthub.io/packages/helm/bitnami/postgresql
-          #   setup-postgresql-args: >-
-          #     --version=11.6.13
-          #     --set auth.enablePostgresUser=true
-          #     --set auth.postgresPassword=postgres
-          #     --set auth.database=jupyterhub
-          #     --set audit.logHostname=true
-          #     --set audit.logConnections=true
-          #     --set audit.logDisconnections=true
-          #     --set audit.clientMinMessages=debug
+          - k3s-channel: v1.29
+            test: upgrade
+            upgrade-from: dev
+            upgrade-from-extra-args: >-
+              --set proxy.secretToken=aaaa1111
+              --set hub.db.type=sqlite-pvc
+              --set singleuser.storage.type=dynamic
+            local-chart-extra-args: >-
+              --set hub.db.type=sqlite-pvc
+              --set singleuser.storage.type=dynamic
+          - k3s-channel: v1.28
+            test: upgrade
+            # We're testing hub.db.upgrade with PostgreSQL so this version must be old
+            # enough to require a DB upgrade
+            upgrade-from: 2.0.0
+            upgrade-from-extra-args: >-
+              --set proxy.secretToken=aaaa1111
+              --set hub.cookieSecret=bbbb2222
+              --set hub.config.CryptKeeper.keys[0]=cccc3333
+              --set hub.db.type=postgres
+              --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
+              --set singleuser.storage.type=dynamic
+            local-chart-extra-args: >-
+              --set hub.db.type=postgres
+              --set hub.db.url=postgresql+psycopg2://postgres:postgres@postgresql:5432/jupyterhub
+              --set singleuser.storage.type=dynamic
+              --set hub.db.upgrade=true
+            create-k8s-test-resources: true
+            # https://artifacthub.io/packages/helm/bitnami/postgresql
+            setup-postgresql-args: >-
+              --version=16.0.5
+              --set auth.enablePostgresUser=true
+              --set auth.postgresPassword=postgres
+              --set auth.database=jupyterhub
+              --set audit.logHostname=true
+              --set audit.logConnections=true
+              --set audit.logDisconnections=true
+              --set audit.clientMinMessages=debug
 
     steps:
       - uses: actions/checkout@v4
@@ -224,14 +223,14 @@ jobs:
       # kubectl and helm
       #
       # ref: https://github.com/jupyterhub/action-k3s-helm/
-      - uses: jupyterhub/action-k3s-helm@v3
+      - uses: jupyterhub/action-k3s-helm@v4
         with:
           k3s-channel: ${{ matrix.k3s-channel }}
           metrics-enabled: false
           traefik-enabled: false
           docker-enabled: true
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -270,7 +269,7 @@ jobs:
       # jupyterhub and the autohttps pod is about to start, so for CI
       # performance we delayed this until now and did other things in between.
       - name: Await local ACME server
-        uses: jupyterhub/action-k8s-await-workloads@v2
+        uses: jupyterhub/action-k8s-await-workloads@v3
         with:
           timeout: 150
           max-restarts: 1
@@ -336,7 +335,7 @@ jobs:
 
       - name: "(Upgrade) Await ${{ matrix.upgrade-from }} chart"
         if: matrix.test == 'upgrade'
-        uses: jupyterhub/action-k8s-await-workloads@v2
+        uses: jupyterhub/action-k8s-await-workloads@v3
         with:
           timeout: 150
           max-restarts: 1
@@ -361,7 +360,7 @@ jobs:
               ${{ matrix.local-chart-extra-args }}
 
       - name: "Await local chart"
-        uses: jupyterhub/action-k8s-await-workloads@v2
+        uses: jupyterhub/action-k8s-await-workloads@v3
         with:
           timeout: 150
           max-restarts: 1
@@ -379,6 +378,9 @@ jobs:
         continue-on-error: ${{ matrix.accept-failure == true }}
         run: |
           . ./ci/common
+          if [ "${{ contains(matrix.local-chart-extra-args, 'subdomain_host') }}" = "true" ]; then
+            export CI_SUBDOMAIN_HOST=jupyterhub.example.org
+          fi
           # If you have problems with the tests add '--capture=no' to show stdout
           pytest --verbose --maxfail=2 --color=yes --capture=no ./tests
 

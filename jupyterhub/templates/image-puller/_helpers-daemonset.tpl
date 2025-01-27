@@ -34,13 +34,13 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 100%
-  {{- if typeIs "int" .Values.prePuller.revisionHistoryLimit }}
+  {{- if not (typeIs "<nil>" .Values.prePuller.revisionHistoryLimit) }}
   revisionHistoryLimit: {{ .Values.prePuller.revisionHistoryLimit }}
   {{- end }}
   template:
     metadata:
       labels:
-        {{- include "jupyterhub.matchLabels" . | nindent 8 }}
+        {{- include "jupyterhub.matchLabelsLegacyAndModern" . | nindent 8 }}
       {{- with .Values.prePuller.annotations }}
       annotations:
         {{- . | toYaml | nindent 8 }}
@@ -70,6 +70,15 @@ spec:
               {{- include "jupyterhub.userNodeAffinityRequired" . | nindent 14 }}
       {{- end }}
       terminationGracePeriodSeconds: 0
+      {{- if .hook }}
+      {{- with include "jupyterhub.hook-image-puller-serviceaccount.fullname" . }}
+      serviceAccountName: {{ . }}
+      {{- end }}
+      {{- else }}
+      {{- with include "jupyterhub.continuous-image-puller-serviceaccount.fullname" . }}
+      serviceAccountName: {{ . }}
+      {{- end }}
+      {{- end }}
       automountServiceAccountToken: false
       {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" .Values.singleuser.image) }}
       imagePullSecrets: {{ . }}
