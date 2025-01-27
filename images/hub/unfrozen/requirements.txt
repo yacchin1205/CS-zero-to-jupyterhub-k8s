@@ -8,7 +8,7 @@
 #
 
 # JupyterHub itself
-jupyterhub==5.2.1
+git+https://github.com/RCOSDP/CS-jupyterhub.git@5.2.1
 
 # JupyterHub Spawner, kubernetes specific
 jupyterhub-kubespawner==7.*
@@ -21,6 +21,10 @@ jupyterhub-ltiauthenticator==1.*
 jupyterhub-nativeauthenticator==1.*
 jupyterhub-tmpauthenticator==1.*
 oauthenticator[googlegroups,mediawiki]==17.*
+
+# RCOSDP
+git+https://github.com/RCOSDP/CS-jhub_remote_user_authenticator.git
+git+https://github.com/RCOSDP/CS-jhub_sendgrid_notifier.git
 
 # JupyterHub service shutting servers after a period of inactivity
 jupyterhub-idle-culler==1.*
