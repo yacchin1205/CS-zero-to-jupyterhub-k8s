@@ -10,13 +10,13 @@ aiohttp==3.11.11
     # via kubernetes-asyncio
 aiosignal==1.3.2
     # via aiohttp
-alembic==1.14.0
+alembic==1.14.1
     # via jupyterhub
 annotated-types==0.7.0
     # via pydantic
 arrow==1.3.0
     # via isoduration
-attrs==24.3.0
+attrs==25.1.0
     # via
     #   aiohttp
     #   jsonschema
@@ -25,7 +25,7 @@ bcrypt==4.2.1
     # via
     #   jupyterhub-firstuseauthenticator
     #   jupyterhub-nativeauthenticator
-cachetools==5.5.0
+cachetools==5.5.1
     # via google-auth
 certifi==2024.12.14
     # via
@@ -51,7 +51,7 @@ frozenlist==1.5.0
     # via
     #   aiohttp
     #   aiosignal
-google-auth==2.37.0
+google-auth==2.38.0
     # via google-auth-oauthlib
 google-auth-oauthlib==1.2.1
     # via oauthenticator
@@ -70,9 +70,7 @@ jinja2==3.1.5
     #   jupyterhub
     #   jupyterhub-kubespawner
 jsonpointer==3.0.0
-    # via jupyterhub
-git+https://github.com/RCOSDP/CS-jupyterhub.git@master
-    # via jupyterhub
+    # via jsonschema
 jsonschema==4.23.0
     # via
     #   jupyter-events
@@ -81,7 +79,7 @@ jsonschema-specifications==2024.10.1
     # via jsonschema
 jupyter-events==0.11.0
     # via jupyterhub
-jupyterhub==5.2.1
+jupyterhub @ git+https://github.com/yacchin1205/jupyterhub.git@feature/upstream-2025-01
     # via
     #   -r unfrozen/requirements.txt
     #   jupyterhub-firstuseauthenticator
@@ -105,11 +103,6 @@ jupyterhub-ltiauthenticator==1.6.2
 jupyterhub-nativeauthenticator==1.3.0
     # via -r unfrozen/requirements.txt
 jupyterhub-tmpauthenticator==1.0.0
-    # via -r unfrozen/requirements.txt
-    # via -r requirements.in
-git+https://github.com/RCOSDP/CS-jhub_remote_user_authenticator.git
-    # via -r requirements.in
-git+https://github.com/RCOSDP/CS-jhub_sendgrid_notifier.git
     # via -r unfrozen/requirements.txt
 kubernetes-asyncio==32.0.0
     # via jupyterhub-kubespawner
@@ -162,7 +155,7 @@ pycparser==2.22
     # via cffi
 pycurl==7.45.4
     # via -r unfrozen/requirements.txt
-pydantic==2.10.5
+pydantic==2.10.6
     # via jupyterhub
 pydantic-core==2.27.2
     # via pydantic
@@ -188,7 +181,7 @@ pyyaml==6.0.2
     #   jupyter-events
     #   jupyterhub-kubespawner
     #   kubernetes-asyncio
-referencing==0.35.1
+referencing==0.36.2
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -258,6 +251,7 @@ typing-extensions==4.12.2
     #   alembic
     #   pydantic
     #   pydantic-core
+    #   referencing
     #   sqlalchemy
 uri-template==1.3.0
     # via jsonschema
