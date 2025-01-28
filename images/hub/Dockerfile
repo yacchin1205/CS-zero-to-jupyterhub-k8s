@@ -32,8 +32,10 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
         # Additional wheels for default-stage. Updates below should be repeated
         # in default-stage.
         #
-        py-spy
-
+        py-spy \
+    && ls -la /tmp/wheels/jupyterhub-5.2.1-py3-none-any.whl \
+    && mkdir -p /tmp/test && cd /tmp/test && unzip /tmp/wheels/jupyterhub-5.2.1-py3-none-any.whl \
+    && ls -la /tmp/test/jupyterhub/alembic.ini
 
 # The final stage - slim version
 # ------------------------------
@@ -68,6 +70,7 @@ RUN apt-get update \
         curl \
         gpg \
         npm \
+        unzip \
  && rm -rf /var/lib/apt/lists/*
 
 # install wheels built in the build stage
@@ -90,13 +93,17 @@ ARG PIP_CACHE_DIR=/tmp/pip-cache
 # TODO: --no-build-isolation is needed to avoid the following error:
 # ERROR: No matching distribution found for setuptools>=61
 RUN pip install --no-cache-dir setuptools>=61
+RUN echo test
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
     pip install \
         --no-index \
         --no-build-isolation \
         --find-links=/tmp/wheels/ \
-        -r /tmp/requirements.txt
+        -r /tmp/requirements.txt \
+    && ls -la /tmp/wheels/jupyterhub-5.2.1-py3-none-any.whl \
+    && mkdir -p /tmp/test && cd /tmp/test && unzip /tmp/wheels/jupyterhub-5.2.1-py3-none-any.whl \
+    && cp /tmp/test/jupyterhub/alembic.ini /usr/local/lib/python3.12/site-packages/jupyterhub/alembic.ini
 
 WORKDIR /srv/jupyterhub
 RUN chown ${NB_USER}:${NB_USER} /srv/jupyterhub
