@@ -65,6 +65,10 @@ idna==3.10
     #   yarl
 isoduration==20.11.0
     # via jsonschema
+jhub-remote-user-authenticator @ git+https://github.com/RCOSDP/CS-jhub_remote_user_authenticator.git
+    # via -r unfrozen/requirements.txt
+jhub-sendgrid-notifier @ git+https://github.com/RCOSDP/CS-jhub_sendgrid_notifier.git
+    # via -r unfrozen/requirements.txt
 jinja2==3.1.5
     # via
     #   jupyterhub
@@ -82,6 +86,8 @@ jupyter-events==0.11.0
 jupyterhub @ git+https://github.com/yacchin1205/jupyterhub.git@feature/upstream-2025-01
     # via
     #   -r unfrozen/requirements.txt
+    #   jhub-remote-user-authenticator
+    #   jhub-sendgrid-notifier
     #   jupyterhub-firstuseauthenticator
     #   jupyterhub-kubespawner
     #   jupyterhub-ldapauthenticator
@@ -172,6 +178,8 @@ python-dateutil==2.9.0.post0
     #   jupyterhub
     #   jupyterhub-idle-culler
     #   kubernetes-asyncio
+python-http-client==3.3.7
+    # via sendgrid
 python-json-logger==3.2.1
     # via jupyter-events
 python-slugify==8.0.4
@@ -214,6 +222,8 @@ ruamel-yaml==0.18.10
     # via oauthenticator
 ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
+sendgrid==6.11.0
+    # via jhub-sendgrid-notifier
 six==1.17.0
     # via
     #   kubernetes-asyncio
@@ -227,6 +237,8 @@ sqlalchemy==2.0.37
     #   sqlalchemy-cockroachdb
 sqlalchemy-cockroachdb==2.0.2
     # via -r unfrozen/requirements.txt
+starkbank-ecdsa==2.2.0
+    # via sendgrid
 statsd==4.0.1
     # via -r unfrozen/requirements.txt
 text-unidecode==1.3

@@ -23,6 +23,10 @@ jupyterhub-nativeauthenticator==1.*
 jupyterhub-tmpauthenticator==1.*
 oauthenticator[googlegroups,mediawiki]==17.*
 
+# RCOSDP
+git+https://github.com/RCOSDP/CS-jhub_remote_user_authenticator.git
+git+https://github.com/RCOSDP/CS-jhub_sendgrid_notifier.git
+
 # JupyterHub service shutting servers after a period of inactivity
 jupyterhub-idle-culler==1.*
 
