@@ -129,7 +129,7 @@ jobs:
         # k3s-channel: https://update.k3s.io/v1-release/channels
         #
         include:
-          - k3s-channel: v1.29.0+k3s1
+          - k3s-channel: latest
             test: install
           - k3s-channel: stable # also test hub-slim, and prePuller.hook
             test: install
@@ -187,7 +187,7 @@ jobs:
             test: upgrade
             # We're testing hub.db.upgrade with PostgreSQL so this version must be old
             # enough to require a DB upgrade
-            upgrade-from: 2.0.0
+            upgrade-from: 3.2.1-20240523
             upgrade-from-extra-args: >-
               --set proxy.secretToken=aaaa1111
               --set hub.cookieSecret=bbbb2222
