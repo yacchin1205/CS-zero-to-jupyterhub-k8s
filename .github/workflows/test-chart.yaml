@@ -129,7 +129,7 @@ jobs:
         # k3s-channel: https://update.k3s.io/v1-release/channels
         #
         include:
-          - k3s-channel: v1.29.0+k3s1
+          - k3s-channel: latest
             test: install
           - k3s-channel: stable # also test hub-slim, and prePuller.hook
             test: install
